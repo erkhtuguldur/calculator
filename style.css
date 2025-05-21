@@ -64,3 +64,5 @@ button {
 #zero{
     flex-grow: 2.201;
 }
+.selected{
+    background-color: #c4d869;}

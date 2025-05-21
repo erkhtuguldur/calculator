@@ -1,26 +1,10 @@
-let first=0;
-let second;
-let operator;
+let firstOperand=null;
+let secondOperand=null;
+let operator=null;
+let selected=null;
 const scr=document.querySelector("#screen");
-const zeroBtn=document.querySelector("#zero");
-const oneBtn=document.querySelector("#one");
-const twoBtn=document.querySelector("#two");
-const threeBtn=document.querySelector("#three");
-const fourBtn=document.querySelector("#four");
-const fiveBtn=document.querySelector("#five");
-const sixBtn=document.querySelector("#six");
-const sevenBtn=document.querySelector("#seven");
-const eightBtn=document.querySelector("#eight");
-const nineBtn=document.querySelector("#nine");
-const addBtn=document.querySelector("#add");
-const subtractBtn=document.querySelector("#subtract");
-const divideBtn=document.querySelector("#divide");
-const multiplyBtn=document.querySelector("#multiply");
-const equalsBtn=document.querySelector("#equals");
-const pointBtn=document.querySelector("#point");
-const clearBtn=document.querySelector("#clear");
-const signBtn=document.querySelector("#sign");
-const percentBtn=document.querySelector("#percent");
+scr.textContent="0";
+const buttons=document.querySelectorAll("button");
 
 function operate(a,b,op){
     switch (op){
@@ -38,11 +22,143 @@ function operate(a,b,op){
     }
 }
 
-function display(a,e){
-    if(scr.textContent.length<8){
-        scr.textContent+=a;
+function handler(e){
+    if(e.target.classList.contains("numbers")){
+        addOperands(e.target.textContent);
     }
-  
+    else if(e.target.classList.contains("operations")){
+        addOperator(e.target.textContent);
+        if(selected===null){
+        e.target.classList.add("selected");
+        selected=e.target;}
+        else {
+            selected.classList.remove("selected");
+            e.target.classList.add("selected");
+            selected=e.target;
+        }
+    }
+    else{
+        switch(e.target.id){
+            case "clear":
+                clear();
+                break;
+            case "percent":
+                addPercent();
+                break;
+            case "sign":
+                addSign();
+                break;
+            case "equals":
+                addEquals();
+                break;
+        }
+    }
+}
+
+function updateScreen(num,append){
+    let value= scr.textContent;
+    if(append){
+        if(value.length>=8){
+            return;
+        }
+        value+=num;
+    }
+    else{
+        value=num.toString();
+    }
+
+    if(value.length>8){
+         value=value.substring(0,8);
+    }
+    scr.textContent=value;
+
+}
+
+
+
+function addOperands(num){
+    if(num==="."){
+        addPoint();
+        return;
+        
+    }
+    if(firstOperand===null){
+        if(scr.textContent=="0"){
+            updateScreen(num,false);
+        }
+        else{
+            if(scr.textContent.length<8){
+            updateScreen(num,true);
+        }
+        }
+    }
+    else{
+        if(scr.textContent==firstOperand){
+            updateScreen(num,false);
+        }
+        else{
+            if(scr.textContent.length<8){
+            updateScreen(num,true);
+        }
+        }
+    }
+}
+
+function addSign(sign){
+    if(scr.textContent!="0"){
+        updateScreen(Number(scr.textContent)*(-1)+"",false);
+    }
+}
+
+function addOperator(op) {
+    if (firstOperand === null) {
+        firstOperand = scr.textContent;
+        operator = op;
+    }
+    else {
+        if (operator !== null) {
+            secondOperand = scr.textContent;
+            let result = operate(firstOperand, secondOperand, operator);
+            updateScreen(result, false);
+            firstOperand = result;
+            secondOperand = null;
+        } else {
+            firstOperand = scr.textContent;
+        }
+        operator = op;
+    }
+}
+
+function addEquals(){
+    if(firstOperand!==null && operator!==null){
+        secondOperand=scr.textContent;
+        let result=operate(firstOperand,secondOperand,operator);
+        updateScreen(result,false);
+        firstOperand=result;
+        secondOperand=null;
+        operator=null;
+        if(selected){
+        selected.classList.remove("selected");
+        selected=null;
+    }}
+}
+function addPoint(){
+if(scr.textContent.length<8 && !scr.textContent.includes(".")){
+    updateScreen(".",true);
+}
+}
+function clear(){
+firstOperand=null;
+secondOperand=null;
+operator=null;
+updateScreen("0",false);
+selected.classList.remove("selected");
+selected=null;
+
+}
+
+function addPercent(){
+updateScreen(Number(scr.textContent)/100,false);
 }
 
 function addition(a,b){
@@ -58,60 +174,10 @@ function division(a,b){
     return Number(a)/Number(b);
 }
 
-oneBtn.addEventListener("click",function (e){
-    display(1,e);
-});
-twoBtn.addEventListener("click",function (e){
-    display(2,e);
-});
-threeBtn.addEventListener("click",function (e){
-    display(3,e);
-});
-fourBtn.addEventListener("click",function (e){
-    display(4,e);
-});
-fiveBtn.addEventListener("click",function (e){
-    display(5,e);
-});
-sixBtn.addEventListener("click",function (e){
-    display(6,e);
-});
-sevenBtn.addEventListener("click",function (e){
-    display(7,e);
-});
-eightBtn.addEventListener("click",function (e){
-    display(8,e);
-});
-nineBtn.addEventListener("click",function (e){
-    display(9,e);
-});
-zeroBtn.addEventListener("click",function (e){
-    display(0,e);
-});
-pointBtn.addEventListener("click",function (e){
-    display(".");
-});
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
-// oneBtn.addEventListener("click",function (e){
-//     display(1);
-// });
+function init(){
+    for(let i=0;i<buttons.length;i++){
+        buttons[i].addEventListener("click",handler);
+    }
+}
+
+init();
